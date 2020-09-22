@@ -2,12 +2,12 @@ package product
 
 //ToProduct ...
 func ToProduct(productDTO ProductDTO) Product {
-	return Product{Code: productDTO.Code, Price: productDTO.Price}
+	return Product{Code: productDTO.Code, Price: productDTO.Price, Description: productDTO.Description}
 }
 
 //ToProductDTO ...
 func ToProductDTO(product Product) ProductDTO {
-	return ProductDTO{ID: product.ID, Code: product.Code, Price: product.Price}
+	return ProductDTO{ID: product.ID, Code: product.Code, Price: product.Price, Description: product.Description}
 }
 
 //ToProductDTOs ...

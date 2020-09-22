@@ -67,6 +67,7 @@ func (p *ProductAPI) Update(c *gin.Context) {
 
 	product.Code = productDTO.Code
 	product.Price = productDTO.Price
+	product.Description = productDTO.Description
 	p.ProductService.Save(product)
 
 	c.Status(http.StatusOK)

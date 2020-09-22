@@ -5,13 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 
 	"github.com/flaviowilker/go-rest-api/product"
 )
 
 func initDB() *gorm.DB {
-	db, err := gorm.Open("mysql", os.Getenv("DB_URL"))
+	db, err := gorm.Open("postgres", os.Getenv("DB_URL"))
 	if err != nil {
 		panic(err)
 	}
