@@ -25,7 +25,7 @@ func main() {
 	db := initDB()
 	defer db.Close()
 
-	productAPI := InitProductAPI(db)
+	productAPI := initProductAPI(db)
 
 	r := gin.Default()
 

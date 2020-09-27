@@ -10,9 +10,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+import (
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+)
+
 // Injectors from wire.go:
 
-func InitProductAPI(db *gorm.DB) product.ProductAPI {
+func initProductAPI(db *gorm.DB) product.ProductAPI {
 	productRepository := product.ProvideProductRepostiory(db)
 	productService := product.ProvideProductService(productRepository)
 	productAPI := product.ProvideProductAPI(productService)

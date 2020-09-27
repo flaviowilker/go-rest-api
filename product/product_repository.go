@@ -16,29 +16,38 @@ func ProvideProductRepostiory(DB *gorm.DB) ProductRepository {
 }
 
 //FindAll ...
-func (p *ProductRepository) FindAll() []Product {
+func (p *ProductRepository) FindAll() ([]Product, error) {
 	var products []Product
-	p.DB.Find(&products)
+	err := p.DB.Find(&products).Error
 
-	return products
+	return products, err
 }
 
 //FindByID ...
-func (p *ProductRepository) FindByID(id uint) Product {
+func (p *ProductRepository) FindByID(id uint) (Product, error) {
 	var product Product
-	p.DB.First(&product, id)
+	err := p.DB.First(&product, id).Error
 
-	return product
+	return product, err
 }
 
-//Save ...
-func (p *ProductRepository) Save(product Product) Product {
-	p.DB.Save(&product)
+//Create ...
+func (p *ProductRepository) Create(product Product) (Product, error) {
+	err := p.DB.Create(&product).Error
 
-	return product
+	return product, err
+}
+
+//Update ...
+func (p *ProductRepository) Update(product Product) (Product, error) {
+	err := p.DB.Save(&product).Error
+
+	return product, err
 }
 
 //Delete ...
-func (p *ProductRepository) Delete(product Product) {
-	p.DB.Delete(&product)
+func (p *ProductRepository) Delete(product Product) (Product, error) {
+	err := p.DB.Delete(&product).Error
+
+	return product, err
 }

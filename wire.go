@@ -1,3 +1,5 @@
+//+build wireinject
+
 package main
 
 import (
@@ -7,7 +9,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//InitProductAPI ...
 func initProductAPI(db *gorm.DB) product.ProductAPI {
 	wire.Build(product.ProvideProductRepostiory, product.ProvideProductService, product.ProvideProductAPI)
 

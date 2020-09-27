@@ -20,69 +20,88 @@ func ProvideProductAPI(p ProductService) ProductAPI {
 
 //FindAll ...
 func (p *ProductAPI) FindAll(c *gin.Context) {
-	products := p.ProductService.FindAll()
-
-	c.JSON(http.StatusOK, gin.H{"products": ToProductDTOs(products)})
+	if products, err := p.ProductService.FindAll(); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"products": ToProductDTOs(products)})
+	}
 }
 
 //FindByID ...
 func (p *ProductAPI) FindByID(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
-	product := p.ProductService.FindByID(uint(id))
+	id, errParam := strconv.Atoi(c.Param("id"))
+	if errParam != nil {
+		log.Println(errParam)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errParam.Error()})
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"product": ToProductDTO(product)})
+	if product, errFindByID := p.ProductService.FindByID(uint(id)); errFindByID != nil {
+		log.Println(errFindByID)
+		c.JSON(http.StatusNotFound, gin.H{"error": errFindByID.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"product": ToProductDTO(product)})
+	}
 }
 
 //Create ...
 func (p *ProductAPI) Create(c *gin.Context) {
 	var productDTO ProductDTO
-	err := c.BindJSON(&productDTO)
-	if err != nil {
-		log.Fatalln(err)
-		c.Status(http.StatusBadRequest)
+	errBindJSON := c.BindJSON(&productDTO)
+	if errBindJSON != nil {
+		log.Println(errBindJSON)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errBindJSON.Error()})
 		return
 	}
 
-	createdProduct := p.ProductService.Save(ToProduct(productDTO))
-
-	c.JSON(http.StatusOK, gin.H{"product": ToProductDTO(createdProduct)})
+	if product, errSave := p.ProductService.Create(ToProduct(productDTO)); errSave != nil {
+		log.Println(errSave)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": errSave.Error()})
+	} else {
+		c.JSON(http.StatusCreated, gin.H{"product": ToProductDTO(product)})
+	}
 }
 
 //Update ...
 func (p *ProductAPI) Update(c *gin.Context) {
 	var productDTO ProductDTO
-	err := c.BindJSON(&productDTO)
-	if err != nil {
-		log.Fatalln(err)
-		c.Status(http.StatusBadRequest)
+
+	if err := c.BindJSON(&productDTO); err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, _ := strconv.Atoi(c.Param("id"))
-	product := p.ProductService.FindByID(uint(id))
-	if product == (Product{}) {
-		c.Status(http.StatusBadRequest)
+	id, errParam := strconv.Atoi(c.Param("id"))
+	if errParam != nil {
+		log.Println(errParam)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errParam.Error()})
 		return
 	}
 
-	product.Code = productDTO.Code
-	product.Price = productDTO.Price
-	product.Description = productDTO.Description
-	p.ProductService.Save(product)
+	productDTO.ID = uint(id)
 
-	c.Status(http.StatusOK)
+	if product, err := p.ProductService.Update(ToProduct(productDTO)); err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"product": ToProductDTO(product)})
+	}
 }
 
 //Delete ...
 func (p *ProductAPI) Delete(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
-	product := p.ProductService.FindByID(uint(id))
-	if product == (Product{}) {
-		c.Status(http.StatusBadRequest)
+	id, errParam := strconv.Atoi(c.Param("id"))
+	if errParam != nil {
+		log.Println(errParam)
+		c.JSON(http.StatusBadRequest, gin.H{"error": errParam.Error()})
 		return
 	}
 
-	p.ProductService.Delete(product)
-
-	c.Status(http.StatusOK)
+	if product, err := p.ProductService.Delete(uint(id)); err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"product": ToProductDTO(product)})
+	}
 }
